@@ -1,5 +1,9 @@
 const express = require('express')
+const cors = require('cors')
 const { MongoClient, ServerApiVersion } = require('mongodb');
+require('dotenv').config();
+
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -23,7 +27,16 @@ async function run() {
       // Connect to the database and access its collection
       const userCollection = client.db("f11DB").collection("users");
       
-      
+      app.post('/users', async(req, res) => {
+        const user = req.body;
+        const query = {email: req.user?.email};
+        const existingUser = await userCollection.findOne(query);
+        if(existingUser) {
+            res.send({message: "User already exists", insertedId: null})
+        }
+        const result = await userCollection.insertOne(user);
+        res.send(result);
+      })
 
 
     } finally {
